@@ -13,6 +13,7 @@ use App\Http\Controllers\Staff\WorkoutController;
 use App\Http\Controllers\Staff\ExerciseController;
 use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,7 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
         
-        // Check role and profile existence
+        // Check role and redirect only if profile exists
         switch ($user->role) {
             case 'admin':
                 return redirect()->route('admin.dashboard');
@@ -42,18 +43,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 if ($user->instructor) {
                     return redirect()->route('instructor.dashboard');
                 }
-                break;
+                return view('dashboard')->with('error', 'Instructor profile not found. Please contact support.');
             case 'staff':
                 return redirect()->route('staff.dashboard');
             case 'student':
                 if ($user->student) {
                     return redirect()->route('student.dashboard');
                 }
-                break;
+                return view('dashboard')->with('error', 'Student profile not found. Please contact support.');
+            default:
+                return view('dashboard')->with('error', 'Invalid role. Please contact support.');
         }
-
-        // If no valid role or missing profile, show default dashboard with error
-        return view('dashboard')->with('error', 'Profile not found. Please contact support.');
     })->name('dashboard');
 
     // Admin routes
@@ -102,12 +102,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Check-ins
         Route::post('/check-in', [StudentDashboardController::class, 'checkIn'])->name('check-in');
+        Route::post('/check-out', [StudentDashboardController::class, 'checkOut'])->name('check-out');
         Route::get('/check-in-history', [StudentDashboardController::class, 'checkInHistory'])->name('check-in-history');
         
         // Profile
         Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('profile');
         Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])->name('profile.update');
     });
+
+    // Google Fit Integration Routes
+    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
+    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::post('auth/google/disconnect', [GoogleController::class, 'disconnect'])->name('google.disconnect');
 });
 
 Route::middleware('auth')->group(function () {
@@ -126,6 +132,15 @@ Route::middleware(['auth', 'role:staff'])->prefix('staff')->name('staff.')->grou
     Route::get('/students/{student}/workouts', [WorkoutController::class, 'studentWorkouts'])->name('students.workouts');
     Route::get('/students/{student}/progress', [StaffStudentController::class, 'progress'])->name('students.progress');
     Route::post('/students/{student}/workouts', [WorkoutController::class, 'assignWorkout'])->name('students.assign-workout');
+});
+
+// Google Fit Integration Routes
+Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
+    Route::get('/google-fit', [GoogleController::class, 'show'])->name('google.show');
+    Route::get('/google-fit/connect', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
+    Route::get('/google-fit/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::post('/google-fit/disconnect', [GoogleController::class, 'disconnect'])->name('google.disconnect');
+    Route::post('/google-fit/sync', [GoogleController::class, 'sync'])->name('google.sync');
 });
 
 require __DIR__.'/auth.php';
