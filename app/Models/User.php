@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
     ];
 
     /**
@@ -46,5 +46,21 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Get the student profile associated with the user.
+     */
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    /**
+     * Get the instructor profile associated with the user.
+     */
+    public function instructor()
+    {
+        return $this->hasOne(Instructor::class);
     }
 }

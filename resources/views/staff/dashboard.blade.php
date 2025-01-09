@@ -11,11 +11,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <div class="text-3xl font-bold text-gray-900">{{ $totalStudents }}</div>
-                    <div class="text-sm font-medium text-gray-500">Your Students</div>
+                    <div class="text-sm font-medium text-gray-500">Total Students</div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <div class="text-3xl font-bold text-gray-900">{{ $totalWorkouts }}</div>
-                    <div class="text-sm font-medium text-gray-500">Your Workouts</div>
+                    <div class="text-sm font-medium text-gray-500">Total Workouts</div>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <div class="text-3xl font-bold text-gray-900">{{ $todayCheckIns }}</div>
@@ -52,7 +52,7 @@
                 <!-- Active Students -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Active Students</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Active Students</h3>
                         @if($activeStudents->count() > 0)
                             <div class="space-y-4">
                                 @foreach($activeStudents as $student)
@@ -115,4 +115,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> 
